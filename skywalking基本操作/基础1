@@ -1,0 +1,49 @@
+一、什么是skywalking？
+SkyWalking 是观察性分析平台和应用性能管理系统。提供分布式追踪、服务网格遥测分析、度量聚合和可视化一体化解决方案。
+二、为什么要使用skywalking？
+1.微服务架构是通过业务来划分服务的，使用 REST 调用。对外暴露的一个接口，可能需要很多个服务协同才能完成这个接口功能，如果链路上任何一个服务出现问题或者网络超时，都会形成导致接口调用失败。随着业务的不断扩张，服务之间互相调用会越来越复杂。
+2.随着服务的越来越多，对调用链的分析会越来越复杂。
+面对以上情况，我们就需要一些可以帮助理解系统行为、用于分析性能问题的工具，以便发生故障的时候，能够快速定位和解决问题，这就是所谓的 APM（应用性能管理）。
+三、环境搭建（windows）
+1.下载
+http://skywalking.apache.org/downloads/ 
+
+2.解压
+
+3.配置
+1.前端服务的配置
+
+点击到webapp中找到webapp.yml文件里面有前端文件的配置（若是测试使用可以不进行修改使用默认的配置值即可）
+
+
+2.代理配置
+
+ agent.config文件
+
+这个服务名称需要记住要在代理服务中使用
+4.启动前端服务
+在bin目录下找到 startup.bat就吧skywalking的前端和后端全部启动。 访问 前端服务配置中的配置路径 http://localhost:8080/
+这样skywalking中的前后端服务就已经启动了
+
+能访问到服务说明已经启动成功了。
+四、Skywalk和springboot进行集成
+skywalking对项目没有侵入性，所以只是在springboot启动的时候配置一下参数，让springboot项目和对应的agent的jar包一起启动就可以注册到skywalking中去
+
+-javaagent:D:\installpackage\skywilkinginstall\apache-skywalking-apm-bin\agent_euroke\skywalking-agent.jar -Dskywalking.agent.service_name=skywalkingdemo_euroke -Dskywalking.collector.backend_service=127.0.0.1:11800
+
+其中是配置三个变量（特别注意要对应起来否则注册不上）
+1.-javaagent:skywalking-agent.jar代理jar包的位置
+
+3.-Dskywalking.agent.service_name   skywalking中的服务名称要和 代理配置中的自定义服务名称相同。
+
+3.Dskywalking.collector.backend_service  前端服务地址中的地址相同
+
+五、集成多个探针来检测多个服务
+当使用多个代理服务的时候只需要复制多个agent 并修改成你对应的文件夹名称，并修改里面配置文件的服务名称就 skywalking.agent.service_name 这个参数就好，对应的在启动springboot的时候修改参数上的服务名称就可以启动多个服务了。
+
+和上面的代理服务自动对应起来
+
+六、数据库集成
+在skywalking中默认的集成了h2数据库，使用这个数据库有个缺点就是每次重新启动skywalking服务的时候数据就会丢失，但是在真实的开发中需要保存下这些服务数据来这是就需要集成单独的数据库
+
+修改对应的数据库服务(若要使用数据库尽量使用elascatsearche<6的版本)
